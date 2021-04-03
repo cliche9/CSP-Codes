@@ -1,5 +1,4 @@
 #include <iostream>
-#include <map>
 using namespace std;
 const int expo = 1e9 + 7;
 int nums[100000] = {1};
