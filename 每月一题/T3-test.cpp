@@ -2,6 +2,7 @@
 using namespace std;
 
 void oneLoop(int level, int *before, int times) {
+    // 递归层数，前一层的结果数组，倍数
     int temp[11] = {0};
     string s, num;
     int coeff = 0;
@@ -31,20 +32,22 @@ void oneLoop(int level, int *before, int times) {
 }
 
 int main() {
-    freopen("每月一题/a.in", "r", stdin);
-    freopen("每月一题/a.out", "w", stdout);
     int t = 0, coeff = 0;
+    // coeff系数
     int res[11] = {0};
     int level = 0;
     string s, num;
+    // 接收操作和数字
     cin >> s;
     while (cin >> s) {
         if (s == "LOOP") {
             cin >> num;
             if (num == "n")
+                // 倍数为1
                 oneLoop(level + 1, res, 1);
             else {
                 int new_times = stoi(num);
+                // 倍数更新
                 oneLoop(level, res, new_times);
             }
         }
