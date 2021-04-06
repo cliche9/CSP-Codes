@@ -1,8 +1,11 @@
 #include <iostream>
 using namespace std;
 const long long mod = 1e9 + 7;
+// 存区间中100以内的质数的指数大小
 long long nums_index[100][100002] = {0};
+// 存最小的指数大小
 long long minIndexs[100];
+// 存质数
 bool primes[100] = {false};
 
 void getIndex(int l, int r, int c, long long b) {
