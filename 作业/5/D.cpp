@@ -3,6 +3,7 @@
 using namespace std;
 
 int heights[100002] = {0};
+// bound first : 左边界，second : 右边界
 pair<long long, long long> bound[100002];
 
 int main() {

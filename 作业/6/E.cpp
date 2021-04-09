@@ -68,9 +68,7 @@ int main() {
         edges[i].w = c;
     }
 
-    long long res = kruskal(m, n);
-
-    cout << res << endl;
+    cout << kruskal(m, n) << endl;
 
     return 0;
 }
