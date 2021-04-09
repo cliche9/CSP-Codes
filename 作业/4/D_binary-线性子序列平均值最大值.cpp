@@ -26,7 +26,7 @@ int main() {
             diff_sum[i] = diff_sum[i - 1] + weight[i - 1] - mid;
             if (i >= m) {
                 minSum = min(minSum, diff_sum[i - m]);
-                if (diff_sum[i] >= minSum) {
+                if (diff_sum[i] > minSum) {
                     tag = true;
                     break;
                 }
