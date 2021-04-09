@@ -30,8 +30,8 @@ int main() {
             if (max.front() < i + 1 - k)
                 max.pop_front();
             // 存最大最小值
-            res_min.emplace_back(min.front());
-            res_max.emplace_back(max.front());
+            res_min.push_back(min.front());
+            res_max.push_back(max.front());
         }
     }
 
