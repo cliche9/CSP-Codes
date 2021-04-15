@@ -3,7 +3,6 @@
 using namespace std;
 
 int neighbors[501][501] = {0};
-bool vis[501] = {false};
 int dist[501];
 int cnt[501];
 
@@ -18,7 +17,6 @@ int main() {
         cin >> n >> m >> w;
         // 初始化neighbors, vis, dist, cnt
         for (int i = 1; i <= n; i++) {
-            vis[i] = false;
             dist[i] = 1e5;
             cnt[i] = 0;
             for (int j = 1; j <= n; j++)
@@ -40,7 +38,6 @@ int main() {
 
         bool tag = false;
         dist[s] = 0;
-        vis[s] = true;
         queue<int> q;
         q.push(s);
 
