@@ -1,104 +1,115 @@
-#include <bits/stdc++.h>
+#include <iostream>
+#include <list>
+#include <sstream>
 using namespace std;
 
 const int less_max = 32767, more_min = -32768;
-bool intv[65536];
 
-struct expr {
-    int less;
-    int more;
-    expr(): less(less_max), more(more_min) {}
-    bool operator<(const expr& ep) {
-        if (less != less_max && ep.more != more_min)
-            return less < ep.more;
-        else if (less == less_max)
-            return more < ep.more;
-        else if (ep.more == more_min)
-            return less < ep.less;
-        else
-            return more < ep.less;
-    }
-};
-
-list<expr> res;
+// first -- morethan, second -- lessthan
+list<pair<int, int> > res;
 
 bool inputAndDealwith() {
-    expr temp;
+    pair<int, int> temp(more_min, less_max);
     string inputstr;
     getline(cin, inputstr);
     stringstream inputstrstream(inputstr);
     string lstr;
     bool tag = false;
+    int t1 = more_min, t2 = less_max;
     while (inputstrstream >> lstr) {
         tag = true;
         if (lstr == ">=")
-            inputstrstream >> temp.more;
+            inputstrstream >> t1;
         else if (lstr == "<=")
-            inputstrstream >> temp.less;
+            inputstrstream >> t2;
     }
+    if (t1 > more_min)
+        temp.first = t1;
+    if (t2 < less_max)
+        temp.second = t2;
     if (!tag)
         return false;
-    if (temp.more == more_min && temp.less == less_max)
+    if (temp.first == more_min && temp.second == less_max)
         return true;
-    if (temp.more <= temp.less)
+    if (temp.first <= temp.second)
         res.emplace_back(temp);
-    return true;
-}
-
-bool check() {
-    for (int i = 0; i <= 65535; ++i) {
-        if (!intv[i])
-            return false;
-    }
     return true;
 }
 
 void output() {
     if (res.empty()) {
-        cout << "false\n";
+        cout << "false";
         return;
     }
     res.sort();
-    int left = less_max, right = more_min;
-    auto iter = res.begin();
-    while (iter != res.end()) {
-        fill(intv + iter->more + 32768, intv + iter->less + 32769, true);
-        if (iter->more >= left && iter->less <= right)
-            iter = res.erase(iter);
-        else {
-            left = min(left, iter->more);
-            right = max(right, iter->less);
-            ++iter;
-        }
+
+    bool tag = true;
+    while (tag) {
+        tag = false;
+        auto iter1 = res.begin(), iter2 = res.begin();
+        ++iter2;
+        while (iter2 != res.end()) {
+            if (iter1->second >= iter2->first) {
+                if (iter1->second >= iter2->second) {
+                    iter2->first = iter1->first;
+                    iter2->second = iter1->second;
+                }
+                else
+                    iter2->first = iter1->first;
+                res.erase(iter1);
+                tag = true;
+                break;
+            }
+            else if (iter1->second == iter2->first - 1){
+                iter2->first = iter1->first;
+                res.erase(iter1);
+                tag = true;
+                break;
+            }
+            ++iter1;
+            ++iter2;
+        } 
     }
-    if (check()) {
-        cout << "true\n";
+    
+    if (res.size() == 1) {
+        if (res.begin()->first == more_min && res.begin()->second == less_max) {
+            cout << "true";
+            return;
+        }
+        if (res.begin()->first == more_min) {
+            cout << "x <= " << res.begin()->second;
+            return;
+        }
+        if (res.begin()->second == less_max) {
+            cout << "x >= " << res.begin()->first;
+            return;
+        }
+        cout << "x >= " << res.begin()->first << " && x <= " << res.begin()->second;
         return;
     }
 
-    int count = res.size();
-    for (auto &ep : res) {
-        if (ep.less != less_max && ep.more != more_min) {
-            cout << "x >= " << ep.more << " && x <= " << ep.less;
-            if (count > 1)
-                cout << " ||\n";
-        }
-        else if (ep.less == less_max) {
-            cout << "x >= " << ep.more;
-            if (count > 1)
-                cout << " ||\n";
-        }
-        else if (ep.more == more_min) {
-            cout << "x <= " << ep.less;
-            if (count > 1)
-                cout << " ||\n";
-        }
-        --count;
+    auto intv = res.begin();
+    if (intv->first != more_min) 
+        cout << "x >= " << intv->first << " && x <= " << intv->second << " ||\n";
+    else
+        cout << "x <= " << intv->second << " ||\n";
+    ++intv;
+    auto test = intv;
+    ++test;
+    while (test != res.end()) {
+        cout << "x >= " << intv->first << " && x <= " << intv->second << " ||\n";
+        ++intv;
+        ++test;
     }
+    if (intv->second != less_max)
+        cout << "x >= " << intv->first << " && x <= " << intv->second;
+    else
+        cout << "x >= " << intv->first;
 }
 
 int main() {
-    string aLine;
+    freopen("每月一题/a.in", "r", stdin);
+    freopen("每月一题/a.out", "w", stdout);
     while (inputAndDealwith());
     // output the answer
     output();
