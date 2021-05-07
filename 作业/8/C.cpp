@@ -106,7 +106,7 @@ int main() {
     }
 
     if (spfa(0))
-        cout << *max_element(sum + 1, sum + n + 1);
+        cout << sum[n];
     
     return 0;
 }
