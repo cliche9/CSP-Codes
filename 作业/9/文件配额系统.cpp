@@ -12,13 +12,13 @@ struct file {
     // 文件大小
     ll file_size;
     // 目录配额, 后代配额
-    ll dir_all_max, dir_des_max;
+    ll dir_son_max, dir_des_max;
     // 目录使用, 后代使用
     ll dir_all_used, dir_des_used;
     // 目录内信息
     map<string, file *> childSet;
     // 构造函数
-    file(int type, ll size = 0): file_type(type), file_size(size), dir_all_max(0), dir_des_max(0), dir_all_used(0), dir_des_used(0) {}
+    file(int type, ll size = 0): file_type(type), file_size(size), dir_son_max(0), dir_des_max(0), dir_all_used(0), dir_des_used(0) {}
     ~file() {
         for (auto &it : childSet)
             delete it.second;
@@ -27,7 +27,7 @@ struct file {
     bool pre_add_size(ll size, bool last = false) {
         if (dir_des_max && dir_des_used + size > dir_des_max)
             return false;
-        if (last && dir_all_max && dir_all_used + size > dir_all_max)
+        if (last && dir_son_max && dir_all_used + size > dir_son_max)
             return false;
         return true;
     }
@@ -44,10 +44,10 @@ struct file {
         return dir_des_used;
     }
     // 设置配额
-    bool set_size(ll all_max, ll des_max) {
-        if ((all_max && dir_all_used > all_max) || (des_max && dir_des_used > des_max))
+    bool set_size(ll son_max, ll des_max) {
+        if ((son_max && dir_all_used > son_max) || (des_max && dir_des_used > des_max))
             return false;
-        dir_all_max = all_max;
+        dir_son_max = son_max;
         dir_des_max = des_max;
         return true;
     }
