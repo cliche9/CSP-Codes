@@ -17,6 +17,7 @@ int query(int x) {
 }
 
 void update(int x) {
+    // 边界为inf! 因为second可能大于n, n为区间个数
     for (int i = x; i < inf; i += lowbit(i))
         sums[i]++;
 }
@@ -31,10 +32,11 @@ int main() {
         cin >> nums[i].first >> nums[i].second;
         nums[i].second++;
     }
-    
+    // sort排序, 先看first再看second
     sort(nums + 1, nums + n + 1);
     
     for (int i = 1; i <= n; i++) {
+        // 先查后加
         cnt[query(nums[i].second)]++;
         update(nums[i].second);
     }
