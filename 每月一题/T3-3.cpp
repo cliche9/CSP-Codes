@@ -5,8 +5,8 @@ using namespace std;
 vector<string> page(1);
 bool shift_on = false;
 bool selected = false;
-string selected_string;
-string copy_string;
+vector<string> selected_string;
+vector<string> copy_string;
 pair<int, int> cursor(0, 0);
 pair<int, int> log_point(0, 0);
 
@@ -68,6 +68,8 @@ void _move(const string &cmd) {
 }
 
 void insert(const string &cmd) {
+    if (cmd == "Paste" && copy_string.empty())
+        return;
     if (selected)
         _remove();
     if (cmd == "Enter") {
@@ -86,8 +88,15 @@ void insert(const string &cmd) {
         page[cursor.first] = page[cursor.first].substr(0, cursor.second) + ' ' + page[cursor.first].substr(cursor.second);
         ++cursor.second;
     } else if (cmd == "Paste") {
-        page[cursor.first] = page[cursor.first].substr(0, cursor.second) + copy_string + page[cursor.first].substr(cursor.second);
-        cursor.second += copy_string.size();
+        // 一行
+        if (copy_string.size() == 1) {
+            page[cursor.first] = page[cursor.first].substr(0, cursor.second) + copy_string[0] + page[cursor.first].substr(cursor.second);
+            cursor.second += copy_string[0].size();
+        }
+        // 多行
+        else {
+            page[cursor.first] = 
+        }
     } else {
         char c;
         cin >> c;
