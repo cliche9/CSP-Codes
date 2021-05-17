@@ -8,11 +8,27 @@ bool selected = false;
 string selected_string;
 string copy_string;
 pair<int, int> cursor(0, 0);
-pair<int, int> start_point(0, 0);
-pair<int, int> end_point(0, 0);
+pair<int, int> log_point(0, 0);
+
+void _remove() {
+    if (log_point.first <= cursor.first) {
+        page[log_point.first] = page[log_point.first].substr(0, log_point.second) + page[cursor.first].substr(cursor.second);
+        for (int i = cursor.first; i >= log_point.first + 1; --i)
+            page.erase(page.begin() + i);
+        cursor = log_point;
+    }
+    else {
+        page[cursor.first] = page[cursor.first].substr(0, cursor.second) + page[log_point.first].substr(log_point.second);
+        for (int i = log_point.first; i >= cursor.first + 1; --i)
+            page.erase(page.begin() + i);
+    }
+    selected = false;
+    selected_string.clear();
+}
 
 void _move(const string &cmd) {
     selected = false;
+    selected_string.clear();
     if (cmd == "Home")
         cursor.second = 0;
     else if (cmd == "End")
@@ -52,13 +68,8 @@ void _move(const string &cmd) {
 }
 
 void insert(const string &cmd) {
-    if (selected) {
-        page[start_point.first] = page[start_point.first].substr(0, start_point.second) + page[end_point.first].substr(end_point.second);
-        for (int i = end_point.first; i >= start_point.first + 1; --i)
-            page.erase(page.begin() + i);
-        cursor = start_point;
-        selected = false;
-    }
+    if (selected)
+        _remove();
     if (cmd == "Enter") {
         // 新建一行
         page.push_back("");
@@ -87,11 +98,7 @@ void insert(const string &cmd) {
 
 void remove(const string &cmd) {
     if (selected) {
-        page[start_point.first] = page[start_point.first].substr(0, start_point.second) + page[end_point.first].substr(end_point.second);
-        for (int i = end_point.first; i >= start_point.first + 1; --i)
-            page.erase(page.begin() + i);
-        cursor = start_point;
-        selected = false;
+        _remove();
         return;
     }
     if (cmd == "Del") {
@@ -120,27 +127,30 @@ void remove(const string &cmd) {
 void shift() {
     shift_on = !shift_on;
     if (shift_on) {
-        start_point = cursor;
+        if (!selected)
+            log_point = cursor;
         selected = false;
+        selected_string.clear();
     }
     else {
-        end_point = cursor;
-        if (start_point != end_point)
+        if (log_point != cursor)
             selected = true;
-        if (start_point > end_point) {
-            pair<int, int> temp(start_point);
-            start_point = end_point;
-            end_point = temp;
-        }
-        selected = true;
         // 更新选中的string
-        if (start_point.first == end_point.first)
-            selected_string = page[start_point.first].substr(start_point.second, end_point.second - start_point.second);
-        else {
-            selected_string = page[start_point.first].substr(start_point.second);
-            for (int i = start_point.first + 1; i < end_point.first; ++i)
-                selected_string += page[i];
-            selected_string += page[end_point.first].substr(0, end_point.second);
+        if (selected) {
+            if (cursor.first == log_point.first)
+                selected_string = page[cursor.first].substr(min(cursor.second, log_point.second), abs(cursor.second - log_point.second));
+            else if (cursor.first > log_point.first){
+                selected_string = page[log_point.first].substr(log_point.second);
+                for (int i = log_point.first + 1; i < cursor.first; ++i)
+                    selected_string += page[i];
+                selected_string += page[cursor.first].substr(0, cursor.second);
+            }
+            else {
+                selected_string = page[cursor.first].substr(cursor.second);
+                for (int i = cursor.first + 1; i < log_point.first; ++i)
+                    selected_string += page[i];
+                selected_string += page[log_point.first].substr(0, log_point.second);
+            }
         }
     }
 }
