@@ -88,13 +88,15 @@ void insert(const string &cmd) {
         page[cursor.first] = page[cursor.first].substr(0, cursor.second) + ' ' + page[cursor.first].substr(cursor.second);
         ++cursor.second;
     } else if (cmd == "Paste") {
-        // 一行
-        if (copy_string.size() == 1) {
-            page[cursor.first] = page[cursor.first].substr(0, cursor.second) + copy_string[0] + page[cursor.first].substr(cursor.second);
-            cursor.second += copy_string[0].size();
-        }
+        page[cursor.first] = page[cursor.first].substr(0, cursor.second) + copy_string[0] + page[cursor.first].substr(cursor.second);
+        cursor.second += copy_string[0].size();
+        for (int i = copy_string.size(); i > 1; --i)
+            page.push_back("");
         // 多行
-        else {
+        if (copy_string.size() > 1) {
+            for (int i = page.size() - 1; i >= page.size() - copy_string.size(); --i) {
+                page[i] = page[i + 1 - copy_string.size()];
+            }
             page[cursor.first] = 
         }
     } else {
