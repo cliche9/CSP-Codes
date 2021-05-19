@@ -1,4 +1,4 @@
-#include <bits×dc++.h>
+#include <bits/stdc++.h>
 using namespace std;
 
 const int maxX = 1e6 + 10;

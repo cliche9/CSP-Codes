@@ -5,30 +5,28 @@ using namespace std;
 vector<string> page(1);
 bool shift_on = false;
 bool selected = false;
-vector<string> selected_string;
 vector<string> copy_string;
 pair<int, int> cursor(0, 0);
 pair<int, int> log_point(0, 0);
 
 void _remove() {
-    if (log_point.first <= cursor.first) {
-        page[log_point.first] = page[log_point.first].substr(0, log_point.second) + page[cursor.first].substr(cursor.second);
-        for (int i = cursor.first; i >= log_point.first + 1; --i)
-            page.erase(page.begin() + i);
-        cursor = log_point;
-    }
+    pair<int, int> from = min(cursor, log_point), to = max(cursor, log_point);
+    if (from.first == to.first)
+        page[from.first].erase(from.second, to.second - from.second);
     else {
-        page[cursor.first] = page[cursor.first].substr(0, cursor.second) + page[log_point.first].substr(log_point.second);
-        for (int i = log_point.first; i >= cursor.first + 1; --i)
+        page[from.first].erase(from.second);
+        page[from.first] += page[to.first].substr(to.second);
+        for (int i = to.first; i > from.first; --i)
             page.erase(page.begin() + i);
     }
+    cursor = from;
     selected = false;
-    selected_string.clear();
 }
 
 void _move(const string &cmd) {
-    selected = false;
-    selected_string.clear();
+    if (selected) {
+        selected = false;
+    }
     if (cmd == "Home")
         cursor.second = 0;
     else if (cmd == "End")
@@ -57,7 +55,7 @@ void _move(const string &cmd) {
             --cursor.second;
     }
     else {
-        if ((cursor.first == page.size() - 1) && (cursor.second == page[cursor.first].length()))
+        if ((cursor.first == page.size() - 1) && (cursor.second == page[page.size() - 1].length()))
             return;
         if (cursor.second == page[cursor.first].length()) {
             ++cursor.first;
@@ -73,36 +71,34 @@ void insert(const string &cmd) {
     if (selected)
         _remove();
     if (cmd == "Enter") {
-        // 新建一行
-        page.push_back("");
-        // 不动的行下移
-        for (int i = page.size() - 1; i > cursor.first + 1; --i)
-            page[i] = page[i - 1];
-        // 处理动的行
-        page[cursor.first + 1] = page[cursor.first].substr(cursor.second);
-        page[cursor.first] = page[cursor.first].substr(0, cursor.second);
+        string t = page[cursor.first].substr(cursor.second);
+        page[cursor.first].erase(cursor.second);
         // 改变光标位置
         ++cursor.first;
+        page.insert(page.begin() + cursor.first, t);
         cursor.second = 0;
     } else if (cmd == "Space") {
-        page[cursor.first] = page[cursor.first].substr(0, cursor.second) + ' ' + page[cursor.first].substr(cursor.second);
+        page[cursor.first].insert(cursor.second, " ");
         ++cursor.second;
     } else if (cmd == "Paste") {
-        page[cursor.first] = page[cursor.first].substr(0, cursor.second) + copy_string[0] + page[cursor.first].substr(cursor.second);
-        cursor.second += copy_string[0].size();
-        for (int i = copy_string.size(); i > 1; --i)
-            page.push_back("");
-        // 多行
-        if (copy_string.size() > 1) {
-            for (int i = page.size() - 1; i >= page.size() - copy_string.size(); --i) {
-                page[i] = page[i + 1 - copy_string.size()];
-            }
-            page[cursor.first] = 
+        if (copy_string.size() == 1) {
+            page[cursor.first].insert(cursor.second, copy_string[0]);
+            cursor.second += copy_string[0].size();
+        }
+        else {
+            string t = page[cursor.first].substr(cursor.second);
+            page[cursor.first].erase(cursor.second);
+            page[cursor.first] += copy_string[0];
+            for (int i = 1; i < copy_string.size(); ++i)
+                page.insert(page.begin() + cursor.first + i, copy_string[i]);
+            cursor.first += copy_string.size() - 1;
+            page[cursor.first] += t;
+            cursor.second = copy_string[copy_string.size() - 1].length();
         }
     } else {
-        char c;
+        string c;
         cin >> c;
-        page[cursor.first] = page[cursor.first].substr(0, cursor.second) + c + page[cursor.first].substr(cursor.second);
+        page[cursor.first].insert(cursor.second, c);
         ++cursor.second;
     }
 }
@@ -113,23 +109,23 @@ void remove(const string &cmd) {
         return;
     }
     if (cmd == "Del") {
-        if ((cursor.first == page.size() - 1) && (cursor.second == page[cursor.first].length()))
+        if ((cursor.first == page.size() - 1) && (cursor.second == page[page.size() - 1].length()))
             return;
         if (cursor.second == page[cursor.first].length()) {
             page[cursor.first] += page[cursor.first + 1];
             page.erase(page.begin() + cursor.first + 1);
         } else 
-            page[cursor.first] = page[cursor.first].substr(0, cursor.second) + page[cursor.first].substr(cursor.second + 1);
+            page[cursor.first].erase(cursor.second, 1);
     } else {
         if (cursor.first == 0 && cursor.second == 0)
             return;
         if (cursor.second == 0) {
+            cursor.second = page[cursor.first - 1].length();
             page[cursor.first - 1] += page[cursor.first];
             page.erase(page.begin() + cursor.first);
             --cursor.first;
-            cursor.second = page[cursor.first].length();
         } else {
-            page[cursor.first] = page[cursor.first].substr(0, cursor.second - 1) + page[cursor.first].substr(cursor.second);
+            page[cursor.first].erase(cursor.second - 1, 1);
             --cursor.second;
         }
     }
@@ -138,54 +134,64 @@ void remove(const string &cmd) {
 void shift() {
     shift_on = !shift_on;
     if (shift_on) {
-        if (!selected)
+        if (selected)
+            selected = false;
+        else
             log_point = cursor;
-        selected = false;
-        selected_string.clear();
     }
     else {
         if (log_point != cursor)
             selected = true;
-        // 更新选中的string
-        if (selected) {
-            if (cursor.first == log_point.first)
-                selected_string = page[cursor.first].substr(min(cursor.second, log_point.second), abs(cursor.second - log_point.second));
-            else if (cursor.first > log_point.first){
-                selected_string = page[log_point.first].substr(log_point.second);
-                for (int i = log_point.first + 1; i < cursor.first; ++i)
-                    selected_string += page[i];
-                selected_string += page[cursor.first].substr(0, cursor.second);
-            }
-            else {
-                selected_string = page[cursor.first].substr(cursor.second);
-                for (int i = cursor.first + 1; i < log_point.first; ++i)
-                    selected_string += page[i];
-                selected_string += page[log_point.first].substr(0, log_point.second);
-            }
-        }
     }
 }
 
 void find(const string &word) {
     int res = 0;
+
+    int length = word.length();
     if (selected) {
-        int pos = 0;
-        while (pos < selected_string.size()) {
-            pos = selected_string.find(word, pos);
-            if (pos == string::npos)
-                break;
-            ++res;
-            pos += selected_string.size();
+        pair<int, int> from = min(cursor, log_point), to = max(cursor, log_point);
+        if (from.first == to.first) {
+            if (to.second - from.second >= length) {
+                for (int i = from.second; i <= to.second - length; ++i) {
+                    if (page[from.first].substr(i, length) == word)
+                        ++res;
+                }
+            }
         }
-    } else {
+        else {
+            // 头
+            if (page[from.first].length() - from.second >= length) {
+                for (int i = from.second; i <= page[from.first].length() - length; ++i) {
+                    if (page[from.first].substr(i, length) == word)
+                        ++res;
+                }
+            } 
+            // 中间
+            for (int i = from.first + 1; i < to.first; ++i) {
+                if (page[i].length() >= length) {
+                    for (int j = 0; j <= page[i].length() - length; ++j) {
+                        if (page[i].substr(j, length) == word)
+                            ++res;
+                    }
+                }
+            }
+            // 尾
+            if (to.second >= length) {
+                for (int i = 0; i <= to.second - length; ++i) {
+                    if (page[to.first].substr(i, length) == word)
+                        ++res;
+                }
+            }
+        }
+    } 
+    else {
         for (int i = 0; i < page.size(); ++i) {
-            int pos = 0;
-            while (pos < page[i].size()) {
-                pos = page[i].find(word, pos);
-                if (pos == string::npos)
-                    break;
-                ++res;
-                pos += page[i].size();
+            if (page[i].length() >= length) {
+                for (int j = 0; j <= page[i].length() - length; ++j) {
+                    if (page[i].substr(j, length) == word)
+                        ++res;
+                }
             }
         }
     }
@@ -195,23 +201,57 @@ void find(const string &word) {
 void count() {
     int res = 0;
     if (selected) {
-        for (auto c : selected_string)
-            if (c != ' ')
-                ++res;
+        pair<int, int> from = min(cursor, log_point), to = max(cursor, log_point);
+        if (from.first == to.first) {
+            for (int i = from.second; i <= to.second; ++i)
+                if (page[from.first][i] != ' ')
+                    ++res;
+        }
+        else {
+            // 头
+            for (int i = from.second; i <= page[from.first].length(); ++i) {
+                if (page[from.first][i] != ' ')
+                    ++res;
+            }
+            // 中间
+            for (int i = from.first + 1; i < to.first; ++i) {
+                for (auto c : page[i])
+                    if (c != ' ')
+                        ++res;
+            }
+            // 尾
+            for (int i = to.second; i <= page[to.first].length(); ++i) {
+                if (page[to.first][i] != ' ')
+                    ++res;
+            }
+        }
     }
-    else
+    else {
         for (int i = 0; i < page.size(); ++i)
             for (auto c : page[i])
                 if (c != ' ')
                     ++res;
+    }
     cout << res << '\n';
 }
 
 void copy() {
-    if (selected)
-        copy_string = selected_string;
-    else if (!page[cursor.first].empty())
-       copy_string = page[cursor.first];
+    if (selected) {
+        copy_string.clear();
+        pair<int, int> from = min(cursor, log_point), to = max(cursor, log_point);
+        if (from.first == to.first)
+            copy_string.push_back(page[from.first].substr(from.second, to.second - from.first));
+        else {
+            copy_string.push_back(page[from.first].substr(from.second));
+            for (int i = from.first + 1; i < to.first; ++i)
+                copy_string.push_back(page[i]);
+            copy_string.push_back(page[to.first].substr(0, to.second));
+        }
+    }
+    else if (!page[cursor.first].empty()) {
+       copy_string.clear();
+       copy_string.push_back(page[cursor.first]);
+    }
 }
 
 void print() {
