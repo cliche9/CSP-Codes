@@ -203,13 +203,13 @@ void count() {
     if (selected) {
         pair<int, int> from = min(cursor, log_point), to = max(cursor, log_point);
         if (from.first == to.first) {
-            for (int i = from.second; i <= to.second; ++i)
+            for (int i = from.second; i < to.second; ++i)
                 if (page[from.first][i] != ' ')
                     ++res;
         }
         else {
             // 头
-            for (int i = from.second; i <= page[from.first].length(); ++i) {
+            for (int i = from.second; i < page[from.first].length(); ++i) {
                 if (page[from.first][i] != ' ')
                     ++res;
             }
@@ -220,7 +220,7 @@ void count() {
                         ++res;
             }
             // 尾
-            for (int i = to.second; i <= page[to.first].length(); ++i) {
+            for (int i = 0; i < to.second; ++i) {
                 if (page[to.first][i] != ' ')
                     ++res;
             }
@@ -240,7 +240,7 @@ void copy() {
         copy_string.clear();
         pair<int, int> from = min(cursor, log_point), to = max(cursor, log_point);
         if (from.first == to.first)
-            copy_string.push_back(page[from.first].substr(from.second, to.second - from.first));
+            copy_string.push_back(page[from.first].substr(from.second, to.second - from.second));
         else {
             copy_string.push_back(page[from.first].substr(from.second));
             for (int i = from.first + 1; i < to.first; ++i)
