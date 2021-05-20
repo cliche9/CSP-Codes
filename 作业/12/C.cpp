@@ -1,11 +1,11 @@
 #include <iostream>
 using namespace std;
 
-int number[1010];
+int number[10010];
 // first - weight / second - value
-pair<int, int> things[1010];
-pair<int, int> split_things[10101];
-int dp[3010];
+pair<int, int> things[10010];
+pair<int, long long> split_things[1000010];
+long long dp[10010];
 
 int main() {
     freopen("作业/data/a.in", "r", stdin);
