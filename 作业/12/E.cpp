@@ -1,64 +1,14 @@
 #include <iostream>
-#include <set>
+#include <algorithm>
+#include <vector>
 #define ll long long
 using namespace std;
-
-ll weight[41];
-ll value[41];
-set<pair<ll, ll> > set1;
-set<pair<ll, ll> > set2;
-ll preSum[41];
-ll res;
+const ll inf = 1e18 + 1;
+ll weight[50];
+ll value[50];
 int n = 0;
-int v = 0;
-
-void backtrack(int start, ll w, ll v, int end, bool tag) {
-    if (start == end) {
-        if (tag) {
-            set1.insert(make_pair(w, v));
-            set1.insert(make_pair(w + weight[start], v + value[start]));
-        }
-        else {
-            set2.insert(make_pair(w, v));
-            set2.insert(make_pair(w + weight[start], v + value[start]));
-        }
-        return;
-    }
-    if (tag) {
-        backtrack(start + 1, w + weight[start], v + value[start], end, tag);
-        backtrack(start + 1, w, v, end, tag);
-    }
-    else {
-        backtrack(start + 1, w + weight[start], v + value[start], end, tag);
-        backtrack(start + 1, w, v, end, tag);
-    }
-}
-
-void init() {
-    backtrack(0, 0, 0, n / 2, false);
-    backtrack(n / 2 + 1, 0, 0, n, true);
-
-    auto iter = set1.begin();
-    auto rm = iter;
-    ++rm;
-    while (rm != set1.end()) {
-        while (iter->second >= rm->second)
-            rm = set1.erase(rm);
-        ++iter;
-        ++rm;
-    }
-    iter = set2.begin();
-    rm = iter;
-    ++rm;
-    while (rm != set2.end()) {
-        while (iter->second >= rm->second)
-            rm = set1.erase(rm);
-        ++iter;
-        ++rm;
-    }
-
-    
-}
+ll v = 0;
+vector<pair<ll, ll> > preSum;
 
 int main() {
     freopen("作业/data/a.in", "r", stdin);
@@ -66,10 +16,46 @@ int main() {
 
     cin >> n >> v;
 
-    for (int i = 1; i <= n; i++) 
+    for (int i = 0; i < n; i++) 
         cin >> weight[i] >> value[i];
     
-    init();
+    int m = n / 2;
+    for (int i = 0; i < (1 << m); i++) {
+        ll sumWeight = 0, sumValue = 0;
+        for (int j = 0; j < m; j++) {
+            if ((i >> j) & 1) {
+                sumWeight += weight[j];
+                sumValue += value[j];
+            }
+        }
+        preSum.emplace_back(sumWeight, sumValue);
+    }
+
+    sort(preSum.begin(), preSum.end());
+
+    int cnt = 1;
+    for (int i = 1; i < (1 << m); i++)
+        if (preSum[cnt - 1].second < preSum[i].second)
+            preSum[cnt++] = preSum[i];
+    
+
+    ll res = 0;
+    for (int i = 0; i < (1 << (n - m)); i++) {
+        ll sumWeight = 0, sumValue = 0;
+        for (int j = 0; j < (n - m); j++) {
+            if ((i >> j) & 1) {
+                sumWeight += weight[m + j];
+                sumValue += value[m + j];
+            }
+        }
+        if (sumWeight <= v) {
+            auto iter = upper_bound(preSum.begin(), preSum.begin() + cnt, make_pair(v - sumWeight, inf));
+            --iter;
+            res = max(res, sumValue + iter->second);
+        }
+    }
+
+    cout << res;
 
     return 0;
 }
