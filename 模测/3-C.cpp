@@ -5,7 +5,7 @@
 using namespace std;
 #define ll long long
 
-// server[i] -- SERVER
+// server[i] -- 
 // server[i][j] -- task[j]
 // server[i][j]
 struct wEdge {
@@ -18,74 +18,40 @@ struct task {
     int number;
     int inDegree;
     bool isNotCalculate;
-    int serverOrTime;
+    ll serverOrTime;
     vector<wEdge> edges;
-    task(int n = 0): number(n) {}
+    task(int n = 0): number(n), inDegree(0), isNotCalculate(false), serverOrTime(0) {}
 };
 
-vector<task> server[10010];
-ll serverTime[10010];
-int sequence[10010];
+vector<task> server[10100];
+ll serverTime[10100];
+ll timeTo[110];
+int sequence[10100];
 int n = 0;
 
-ll ask(int q) {
+ll query(int q) {
     if (serverTime[q] != -1)
         return serverTime[q];
-    ll res = 0;
+    int n = server[q].size();
+    memset(timeTo, 0, sizeof(timeTo));
     queue<int> seq;
-    for (auto &t : server[q])
-        if (t.inDegree == 0)
-            seq.push(t.number);
-    while (!seq.empty()) {
-        int curTask = seq.front();
-        seq.pop();
-        if (server[q][curTask].isNotCalculate)
-            res += ask(server[q][curTask].serverOrTime) + 1;
-        else
-            res += server[q][curTask].serverOrTime;
-        for (auto &e : server[q][curTask].edges)
-            if (--server[q][e.to].inDegree == 0)
-                seq.push(e.to);
-    }
-    serverTime[q] = res;
-    return res;
-}
-
-void init() {
-    for (int i = 1; i <= n; i++)
-        ask(i);
-    
-    for (int i = 1; i <= n; i++) {
-        int size = server[i].size();
-        server[i].emplace_back(size + 1);
-        for (int j = 1; j <= size; j++) {
-            if (server[i][j].edges.empty()) {
-                server[i][j].edges.emplace_back(size + 1, (server[i][j].isNotCalculate ? 1 + serverTime[server[i][j].serverOrTime] : server[i][j].serverOrTime));
-                break;
-            }
-            for (auto &e : server[i][j].edges)
-                e.weight = (server[i][j].isNotCalculate ? 1 + serverTime[server[i][j].serverOrTime] : server[i][j].serverOrTime);
-        }
-    }
-}
-
-ll query(int q) {
-    queue<int> seq;
-    ll dis[server[q].size()];
-    memset(dis, 0, sizeof(0));
-    for (auto &t : server[q])
-        if (t.inDegree == 0)
-            seq.push(t.number);
+    for (int i = 1; i < n; i++)
+        if (server[q][i].inDegree == 0)
+            seq.push(i);
     while (!seq.empty()) {
         int curTask = seq.front();
         seq.pop();
         for (auto &e : server[q][curTask].edges) {
-            dis[e.to] = max(dis[e.to], dis[curTask] + e.weight);
+            if (server[q][curTask].isNotCalculate)
+                timeTo[e.to] = max(timeTo[e.to], timeTo[curTask] + query(e.weight) + 1);
+            else
+                timeTo[e.to] = max(timeTo[e.to], timeTo[curTask] + e.weight);
             if (--server[q][e.to].inDegree == 0)
                 seq.push(e.to);
         }
     }
-    return dis[server[q].size()];
+    serverTime[q] = timeTo[n - 1];
+    return timeTo[n - 1];
 }
 
 int main() {
@@ -102,19 +68,24 @@ int main() {
             server[i][j].number = j;
             int l;
             cin >> l;
-            server[i][j].edges.resize(l + 1);
+            server[i][j].inDegree = l;
             for (int p = 0; p < l; p++) {
                 int num = 0;
                 cin >> num;
-                server[i][j].edges[l].to = num;
-                ++server[i][num].inDegree;
+                server[i][num].edges.emplace_back(j, server[i][num].serverOrTime);
             }
             cin >> server[i][j].isNotCalculate >> server[i][j].serverOrTime;
+        }
+        server[i].emplace_back(k + 1);
+        for (int j = 1; j <= k; j++) {
+            if (server[i][j].edges.empty()) {
+                server[i][j].edges.emplace_back(k + 1, server[i][j].serverOrTime);
+                ++server[i][k + 1].inDegree;
+            }
         }
     }
 
     memset(serverTime, -1, sizeof(serverTime));
-    init();
 
     int q;
     for (int i = 0; i < m; i++) {
