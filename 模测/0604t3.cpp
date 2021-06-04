@@ -66,6 +66,7 @@ struct stu {
 };
 
 map<string, stu> student;
+map<string, pair<int, int> > preEnd;
 
 int timeToSecond(const string &s) {
     int i = 0;
@@ -161,7 +162,7 @@ int main() {
 
     // deal with run times
     cin >> m;
-    int preDay = 0, day, start, preEnd = 0, end, steps, pauseSecond;
+    int day, start, end, steps, pauseSecond;
     float distance;
     string t1, t2, t3;
     for (int i = 0; i < m; i++) {
@@ -182,11 +183,11 @@ int main() {
             continue;
         if (distance / steps > 1.5)
             continue;
-        if (((day - preDay) * oneDay + start - preEnd < 21600) && preEnd != 0)
+        if (((day - preEnd[id].first) * oneDay + start - preEnd[id].second < 21600) && preEnd[id].second != 0)
             continue;
         ++student[id].runTimes;
-        preDay = day;
-        preEnd = end;
+        preEnd[id].first = day;
+        preEnd[id].second = end;
     }
     for (auto &p : student) {
         p.second.getRes();
