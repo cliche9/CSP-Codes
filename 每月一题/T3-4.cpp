@@ -141,7 +141,7 @@ bool Pig::useK() {
             return true;
         }
     } else if (this->type == 'F') {
-        if (next->type == 'M' || next->jumpType == 'Z') {
+        if (next->jumpType == 'Z') {
             next->cost(this, 'D');
             jump();
             return true;
@@ -154,22 +154,26 @@ bool Pig::useF() {
     // TODO: 补全代码
     Pig* next = getNextPig();
     if (this->type == 'M') {
-        if (next->jumpType == 'F' || next->jumpType == 'f') {
-            fight(next);
-            return true;
+        while (next->jumpType != 'F' && next != this)
+            next = next->getNextPig();
+        if (next == this) {
+            do next = next->getNextPig();
+            while (next->jumpType != 'f' && next != this);
         }
+        if (next == this)
+            return false;
+        fight(next);
+        return true;
     } else if (this->type == 'Z') {
-        if (next->jumpType == 'F') {
-            fight(next);
-            jump();
-            return true;
-        }
+        while (next->jumpType != 'F' && next != this)
+            next = next->getNextPig();
+        if (next == this)
+            return false;
+        fight(next);
+        return true;
     } else if (this->type == 'F') {
-        if (next->type == 'M' || next->jumpType == 'Z') {
-            fight(next);
-            jump();
-            return true;
-        }
+        fight(&ps[0]);
+        return true;
     }
     return false;
 }
@@ -177,10 +181,11 @@ bool Pig::useF() {
 bool Pig::useN() {
     for (Pig* nxt = getNextPig(); nxt != this; nxt = nxt->getNextPig()) {
         // TODO: 补全代码
-        if (nxt->del('K') || nxt->findJ(nxt))
+        if (nxt->findJ(this))
             continue;
-        nxt->hurt(this);
-        if (nxt->type == 'M' && this->type == 'Z' && this->jumpType == 0)
+        if (nxt->cost(this, 'K'))
+            continue;
+        if (nxt->type == 'M' && this->jumpType == 0)
             this->jumpType = 'f';
     }
     return true;
@@ -189,10 +194,11 @@ bool Pig::useN() {
 bool Pig::useW() {
     for (Pig* nxt = getNextPig(); nxt != this; nxt = nxt->getNextPig()) {
         // TODO: 补全代码
-        if (nxt->del('D') || nxt->findJ(nxt))
+        if (nxt->findJ(this))
             continue;
-        nxt->hurt(this);
-        if (nxt->type == 'M' && this->type == 'Z' && this->jumpType == 0)
+        if (nxt->cost(this, 'D'))
+            continue;
+        if (nxt->type == 'M' && this->jumpType == 0)
             this->jumpType = 'f';
     }
     return true;
@@ -232,22 +238,19 @@ bool Pig::cost(Pig* attacker, char c) {
 }
 
 void Pig::fight(Pig* next) {
+    jump();
+    if (next->findJ(this))
+        return;
     if (this->type == 'M' && next->type == 'Z') {
         // 主猪决斗忠猪, 忠猪直接受伤
         next->hurt(this);
+        return;
     }
-    if (!next->del('K')) {
-        if (!findJ(next))
-            next->hurt(this);
-        else
+    while (true) {
+        if (!next->cost(this, 'K'))
             return;
-    }
-    else {
-        bool end = false;
-        while (!end)
-            // next出杀, this再出杀
-            if ((end = this->cost(next, 'K')))
-                end = next->cost(this, 'K');
+        if (!this->cost(next, 'K'))
+            return;
     }
 }
 
