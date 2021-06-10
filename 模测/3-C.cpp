@@ -26,18 +26,18 @@ struct task {
 vector<task> server[10100];
 ll serverTime[10100];
 ll timeTo[110];
-int sequence[10100];
 int n = 0;
 
 ll query(int q) {
     if (serverTime[q] != -1)
         return serverTime[q];
-    int n = server[q].size();
+    int size = server[q].size();
     memset(timeTo, 0, sizeof(timeTo));
     queue<int> seq;
-    for (int i = 1; i < n; i++)
+    for (int i = 1; i < size; i++)
         if (server[q][i].inDegree == 0)
             seq.push(i);
+    
     while (!seq.empty()) {
         int curTask = seq.front();
         seq.pop();
@@ -50,8 +50,8 @@ ll query(int q) {
                 seq.push(e.to);
         }
     }
-    serverTime[q] = timeTo[n - 1];
-    return timeTo[n - 1];
+    serverTime[q] = timeTo[size - 1];
+    return serverTime[q];
 }
 
 int main() {
