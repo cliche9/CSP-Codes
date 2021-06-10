@@ -8,7 +8,7 @@ int s[1 << 22][2];
 int n = 0;
 int h, w;
 
-void dfs(int col, int now_s, int pre_s) {
+void dfs(int col, int pre_s, int now_s) {
     if (col > w)
         return;
     if (col == w) {

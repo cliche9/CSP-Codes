@@ -25,13 +25,13 @@ struct task {
 
 vector<task> server[10100];
 ll serverTime[10100];
-ll timeTo[110];
 int n = 0;
 
 ll query(int q) {
     if (serverTime[q] != -1)
         return serverTime[q];
     int size = server[q].size();
+    ll timeTo[110];
     memset(timeTo, 0, sizeof(timeTo));
     queue<int> seq;
     for (int i = 1; i < size; i++)
