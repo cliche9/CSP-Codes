@@ -21,6 +21,7 @@ int main() {
     
     int m = n / 2;
     for (int i = 0; i < (1 << m); i++) {
+        // 枚举每个组所有物品, 得到一系列空间-价值对
         ll sumWeight = 0, sumValue = 0;
         for (int j = 0; j < m; j++) {
             if ((i >> j) & 1) {
@@ -35,6 +36,7 @@ int main() {
 
     int cnt = 1;
     for (int i = 1; i < (1 << m); i++)
+        // first -- weight, second -- value
         if (preSum[cnt - 1].second < preSum[i].second)
             preSum[cnt++] = preSum[i];
     
