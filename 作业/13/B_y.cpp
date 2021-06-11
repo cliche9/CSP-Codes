@@ -3,6 +3,7 @@
 #include <algorithm>
 using namespace std;
 
+// 括号匹配dp[i][j]: 区间[i, j]的最少添加次数
 int dp[200][200];
 
 int main() {

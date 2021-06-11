@@ -3,6 +3,7 @@
 #include <algorithm>
 using namespace std;
 
+// dp[i][j]: 区间[i, j]的最长回文子序列长度
 int dp[4000][4000];
 
 int main() {

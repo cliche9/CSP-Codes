@@ -5,6 +5,7 @@ using namespace std;
 
 const int inf = 1e6;
 int sum[200];
+// small[i][j]: 区间[i, j]合并的耗费最小值
 int small[200][200];
 int large[200][200];
 
@@ -21,6 +22,7 @@ int main() {
         stones[i + n] = stones[i];
     
     for (int i = 1; i <= 2 * n - 1; ++i) {
+        // 前缀和sum[i]: [1, i]区间合并耗费
         sum[i] = sum[i - 1] + stones[i];
         small[i][i] = 0;
     }
