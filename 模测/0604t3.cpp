@@ -144,8 +144,8 @@ int getRunScore(const string &id, const string &s) {
 }
 
 int main() {
-    freopen("模测/a.in", "r", stdin);
-    freopen("模测/a.out", "w", stdout);
+    freopen("模测/1.in", "r", stdin);
+    freopen("模测/1.out", "w", stdout);
     int n, m;
     cin >> n;
     int f;
