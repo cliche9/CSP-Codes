@@ -16,6 +16,27 @@ int sum[2][inf];
 int main() {
     freopen("作业/data/a.in", "r", stdin);
     freopen("作业/data/a.out", "w", stdout);
+    /*
+    dp[0][a] = 1;
+    for (int i = 1; i <= k; i++) {
+        for (int y = 1; y <= n; y++) {
+            if (y == b)
+                continue;
+            for (int x = 1; x <= n; x++) {
+                if (x == b || x == y)
+                    continue;
+                if (abs(x - y) < abs(x - b)) {
+                    dp[i][y] += dp[i - 1][x];
+                    dp[i][y] %= mod;
+                }
+            }
+        }
+    }
+ 
+    int res = 0;
+    for (int i = 1; i <= n; i++)
+        res = (res + dp[k][i]) % mod;
+    */
     int n, a, b, k;
     cin >> n >> a >> b >> k;
     dp[0][a] = 1;
