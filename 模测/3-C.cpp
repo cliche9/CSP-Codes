@@ -8,18 +8,13 @@ using namespace std;
 // server[i] -- 
 // server[i][j] -- task[j]
 // server[i][j]
-struct wEdge {
-    int to;
-    ll weight;
-    wEdge(int t = 0, ll w = 0): to(t), weight(w) {}
-};
 
 struct task {
     int number;
     int inDegree;
     bool isNotCalculate;
     ll serverOrTime;
-    vector<wEdge> edges;
+    vector<int> edges;
     task(int n = 0): number(n), inDegree(0), isNotCalculate(false), serverOrTime(0) {}
 };
 
@@ -41,13 +36,13 @@ ll query(int q) {
     while (!seq.empty()) {
         int curTask = seq.front();
         seq.pop();
-        for (auto &e : server[q][curTask].edges) {
+        for (auto &to : server[q][curTask].edges) {
             if (server[q][curTask].isNotCalculate)
-                timeTo[e.to] = max(timeTo[e.to], timeTo[curTask] + query(e.weight) + 1);
+                timeTo[to] = max(timeTo[to], timeTo[curTask] + query(server[q][curTask].serverOrTime) + 1);
             else
-                timeTo[e.to] = max(timeTo[e.to], timeTo[curTask] + e.weight);
-            if (--server[q][e.to].inDegree == 0)
-                seq.push(e.to);
+                timeTo[to] = max(timeTo[to], timeTo[curTask] + server[q][curTask].serverOrTime);
+            if (--server[q][to].inDegree == 0)
+                seq.push(to);
         }
     }
     serverTime[q] = timeTo[size - 1];
@@ -72,14 +67,14 @@ int main() {
             for (int p = 0; p < l; p++) {
                 int num = 0;
                 cin >> num;
-                server[i][num].edges.emplace_back(j, server[i][num].serverOrTime);
+                server[i][num].edges.push_back(j);
             }
             cin >> server[i][j].isNotCalculate >> server[i][j].serverOrTime;
         }
         server[i].emplace_back(k + 1);
         for (int j = 1; j <= k; j++) {
             if (server[i][j].edges.empty()) {
-                server[i][j].edges.emplace_back(k + 1, server[i][j].serverOrTime);
+                server[i][j].edges.push_back(k + 1);
                 ++server[i][k + 1].inDegree;
             }
         }
