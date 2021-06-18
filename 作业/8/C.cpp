@@ -82,22 +82,29 @@ int main() {
         cin >> k >> a >> b >> c;
         switch(k) {
             case 1: {
+                // sum[b] - sum[a - 1] <= c
                 addEdge(a - 1, b, c);
                 break;
             }
             case 2: {
+                // sum[b] - sum[a - 1] >= c
+                // sum[a - 1] - sum[b] <= -c
                 addEdge(b, a - 1, -c);
                 break;
             }
             case 3: {
+                // sum[b] - sum[a - ] <= c - 1
                 addEdge(a - 1, b, c - 1);
                 break;
             }
             case 4: {
+                // sum[a - 1] - sum[b] <= -1 - c
                 addEdge(b, a - 1, -1 - c);
                 break;
             }
             case 5: {
+                // sum[b] - sum[a - 1] == c
+                // sum[b] - sum[a - 1] <= c && sum[a - 1] - sum[b] <= -c
                 addEdge(a - 1, b, c);
                 addEdge(b, a - 1, -c);
                 break;

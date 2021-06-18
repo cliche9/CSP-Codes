@@ -7,7 +7,7 @@ const int inf = 5010;
 const int mod = 1e9 + 7;
 // dp[i][j]: 按i次电梯到达第j层的方案数
 int dp[2][inf];
-// sum[i][j] = sigma(sum[i][k]) (1 <= k <= j)
+// sum[i][j] = sigma(dp[i][k]) (1 <= k <= j)
 int sum[2][inf];
 // 求floor((y + b) / 2): y + (b - y - 1) / 2
 // 求ceil((y + b) / 2): y - (y - b - 1) / 2
