@@ -1,16 +1,18 @@
 #include <iostream>
 using namespace std;
 
-int a[510][510];
-int h[260];
+int h[256];
 
 int main() {
     int n, m, l;
+    int t = 0;
+
     cin >> n >> m >> l;
+
     for (int i = 0; i < n; i++) {
         for (int j = 0; j < m; j++) {
-            cin >> a[i][j];
-            ++h[a[i][j]];
+            cin >> t;
+            ++h[t];
         }
     }
 
